@@ -1,18 +1,19 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import ru.yandex.praktikum.CreateUser.CreateUser;
 import ru.yandex.praktikum.CreateUserApi;
 import ru.yandex.praktikum.InitBrowser;
-import ru.yandex.praktikum.PageObjects.*;
+import ru.yandex.praktikum.PageObjects.LoginPageObj;
+import ru.yandex.praktikum.PageObjects.MainPageObj;
+import ru.yandex.praktikum.PageObjects.PersonalAccauntPageObj;
 
 import java.util.concurrent.TimeUnit;
 
-public class PersonalAccauntTest {
+public class PersonalAccauntExitTest {
 
     private static final String USERNAME = "Vasja";
     private static final String USEREMAIL = "testuser12345@yandex.ru";
@@ -20,21 +21,20 @@ public class PersonalAccauntTest {
 
     InitBrowser initBrowser;
 
-    public PersonalAccauntTest() {
+    public PersonalAccauntExitTest() {
         initBrowser = new InitBrowser();
 
         initBrowser.getDriver().manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
     }
 
     @Test
-    @DisplayName("Переход в Личный кабинет")
-    @Description("Переход на страницу личного кабинета после авторизации пользователя")
-    public void personalAccauntAuthorizationTest() {
+    @DisplayName("Выход из личного кабинета")
+    @Description("Выход из личного кабинета по нажатию на кнопку Выход")
+    public void personalAccauntExitTest() {
 
         CreateUser createUser = new CreateUser(USEREMAIL, USERPASSWORD, USERNAME);
 
-        Response createResponse;
-        createResponse = createUserWithResponse(createUser);
+        createUserWithResponse(createUser);
 
         //Клик по кнопке Личный кабинет
         btnPersonalAccountClick();
@@ -48,31 +48,35 @@ public class PersonalAccauntTest {
         //Клик по кнопке Личный кабинет
         btnPersonalAccountClick();
 
-        //Проверка перехода в личный кабинет
-        checkPersonalAccaunt();
+        initBrowser.getDriver().manage().window().maximize();
+        initBrowser.getAccessTokenFromLocalStorage();
+
+        //Клик по кнопке Выход
+        btnExitClick();
+
+        //Проверка перехода на страницу авторизации
+        checkLoginUser();
     }
 
-    @Step ("Создание пользователя")
-    public Response createUserWithResponse(CreateUser createUser){
+    @Step("Создание пользователя")
+    public void createUserWithResponse(CreateUser createUser) {
         CreateUserApi createUserApi = new CreateUserApi(createUser);
 
-        Response response;
-        response = createUserApi.createUser();
+        String accessToken;
+        accessToken = createUserApi.createUser();
 
-        createUserApi.showCreateUserResponseData(response);
-
-        return response;
+        initBrowser.setAccessToken(accessToken);
     }
 
     @Step("Клик по кнопке Личный Кабинет")
-    public void btnPersonalAccountClick(){
+    public void btnPersonalAccountClick() {
         MainPageObj mainPageObj = new MainPageObj(initBrowser.getDriver());
 
         mainPageObj.clickBtnPersonalAccount();
     }
 
     @Step("Заполнение полей на форме авторизации")
-    public void inputLoginData(){
+    public void inputLoginData() {
         LoginPageObj loginPageObj = new LoginPageObj(initBrowser.getDriver());
 
         loginPageObj.setEmail(USEREMAIL);
@@ -80,17 +84,26 @@ public class PersonalAccauntTest {
     }
 
     @Step("Клик по кнопке Войти")
-    public void btnLoginClick(){
+    public void btnLoginClick() {
         LoginPageObj loginPageObj = new LoginPageObj(initBrowser.getDriver());
 
         loginPageObj.clickBtnLogin();
+
+        initBrowser.getAccessTokenFromLocalStorage();
     }
 
-    @Step("Проверка перехода в личный кабинет")
-    public void checkPersonalAccaunt(){
+    @Step("Клик по кнопке Выход")
+    public void btnExitClick() {
         PersonalAccauntPageObj personalAccauntPageObj = new PersonalAccauntPageObj(initBrowser.getDriver());
 
-        Assert.assertTrue(personalAccauntPageObj.isButtonProfile());
+        personalAccauntPageObj.clickBtnExit();
+    }
+
+    @Step("Проверка перехода на страницу авторизации")
+    public void checkLoginUser() {
+        LoginPageObj loginPageObj = new LoginPageObj(initBrowser.getDriver());
+
+        Assert.assertTrue(loginPageObj.isHeaderLogin());
     }
 
     @After

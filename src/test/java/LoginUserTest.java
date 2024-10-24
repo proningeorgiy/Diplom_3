@@ -5,59 +5,51 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import ru.yandex.praktikum.InitBrowser;
+import ru.yandex.praktikum.PageObjects.ForgotPasswordPageObj;
 import ru.yandex.praktikum.PageObjects.LoginPageObj;
 import ru.yandex.praktikum.PageObjects.MainPageObj;
 import ru.yandex.praktikum.PageObjects.RegistrationPageObj;
 
 import java.util.concurrent.TimeUnit;
 
-public class RegistrationUserTest {
-
-    private static final String USERNAME = "Vasja";
-    private static final String USEREMAIL = "testuser12345@yandex.ru";
-    private static final String USERPASSWORD = "123456";
+public class LoginUserTest {
 
     InitBrowser initBrowser;
 
-    String accessToken = "";
-
-    public RegistrationUserTest() {
+    public LoginUserTest() {
         initBrowser = new InitBrowser();
 
         initBrowser.getDriver().manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
     }
 
     @Test
-    @DisplayName("Регистрация пользователя, авторизация через кнопку в форме регистрации")
-    @Description("Успешная регистрация пользователя и авторизация через кнопку в форме регистрации ")
-    public void registrationTest() {
+    @DisplayName("Вход по кнопке Войти в аккаунт")
+    @Description("Переход на страницу авторизации по клику на кнопку Войти в аккаунт на главной странице")
+    public void loginUserByEnterAccauntButtonTest() {
 
-        //Клик по кнопке Личный Кабинет
-        btnPersonalAccountClick();
+        //Клик по кнопке Войти в аккаунт
+        btnEnterAccauntClick();
 
-        //Клик по кнопке Зарегистрироваться на форме авторизации
-        btnRegistrationLoginPageClick();
-
-        //Заполнение полей на форме регистрации
-        inputRegistrationData(USERNAME, USEREMAIL, USERPASSWORD);
-
-        //Клик по кнопке Зарегистрироваться
-        btnRegistrationClick();
-
-        //Заполнение полей на форме авторизации
-        inputLoginData();
-
-        //Клик по кнопке Войти
-        btnLoginClick();
-
-        //Проверка регистрации
-        checkRegistration();
+        //Проверка перехода на страницу Авторизации
+        checkLoginUser();
     }
 
     @Test
-    @DisplayName("Регистрация пользователя, введен некорректный пароль")
-    @Description("Сообщение об ошибке, если введен пароль менее 6 символов")
-    public void registrationWrongPasswordTest() {
+    @DisplayName("Вход по кнопке Личный кабинет")
+    @Description("Переход на страницу авторизации по клику на кнопку Личный кабинет на главной странице")
+    public void loginUserByPersonalAccauntButtonTest() {
+
+        //Клик по кнопке Личный Кабинет
+        btnPersonalAccountClick();
+
+        //Проверка перехода на страницу Авторизации
+        checkLoginUser();
+    }
+
+    @Test
+    @DisplayName("Вход через кнопку в форме регистрации")
+    @Description("Переход на страницу авторизации по клику на кнопку Войти на странице регистрации")
+    public void loginUserByEnterButtonRegistrationPageTest() {
 
         //Клик по кнопке Личный Кабинет
         btnPersonalAccountClick();
@@ -65,78 +57,83 @@ public class RegistrationUserTest {
         //Клик по кнопке Зарегистрироваться на форме авторизации
         btnRegistrationLoginPageClick();
 
-        //Заполнение полей на форме регистрации
-        inputRegistrationData(USERNAME, USEREMAIL, "12345");
+        //Клик по кнопке Войти
+        btnEnterClick();
 
-        //Клик по кнопке Зарегистрироваться
-        btnRegistrationClick();
+        //Проверка перехода на страницу Авторизации
+        checkLoginUser();
+    }
 
-        //Проверка появления сообщения об ошибке при вводе неверного пароля
-        checkWrongPasswordMessage();
+    @Test
+    @DisplayName("Вход через кнопку в форме восстановления пароля")
+    @Description("Переход на страницу авторизации по клику на кнопку Войти на странице восстановления пароля")
+    public void loginUserByEnterButtonForgotPasswordPageTest() {
+
+        //Клик по кнопке Личный Кабинет
+        btnPersonalAccountClick();
+
+        //Клик по кнопке Восстановить пароль
+        btnRecoverPasswordClick();
+
+        //Клик по кнопке Войти
+        btnEnterForgotPasswordPageClick();
+
+        //Проверка перехода на страницу Авторизации
+        checkLoginUser();
     }
 
     @Step("Клик по кнопке Личный Кабинет")
-    public void btnPersonalAccountClick(){
+    public void btnPersonalAccountClick() {
         MainPageObj mainPageObj = new MainPageObj(initBrowser.getDriver());
 
         mainPageObj.clickBtnPersonalAccount();
     }
 
+    @Step("Клик по кнопке Войти в аккаунт")
+    public void btnEnterAccauntClick() {
+        MainPageObj mainPageObj = new MainPageObj(initBrowser.getDriver());
+
+        mainPageObj.clickBtnEnterAccount();
+    }
+
     @Step("Клик по кнопке Зарегистрироваться")
-    public void btnRegistrationLoginPageClick(){
+    public void btnRegistrationLoginPageClick() {
         LoginPageObj loginPageObj = new LoginPageObj(initBrowser.getDriver());
 
         loginPageObj.clickBtnRegistration();
     }
 
-    @Step("Заполнение полей на форме регистрации")
-    public void inputRegistrationData(String userName, String userEmail, String userPassword){
+    @Step("Клик по кнопке Войти")
+    public void btnEnterClick() {
         RegistrationPageObj registrationPageObj = new RegistrationPageObj(initBrowser.getDriver());
 
-        registrationPageObj.setName(userName);
-        registrationPageObj.setEmail(userEmail);
-        registrationPageObj.setPassword(userPassword);
+        registrationPageObj.clickBtnEnter();
     }
 
-    @Step("Клик по кнопке Зарегистрироваться")
-    public void btnRegistrationClick(){
-        RegistrationPageObj registrationPageObj = new RegistrationPageObj(initBrowser.getDriver());
-
-        registrationPageObj.clickBtnRegistration();
-    }
-
-    @Step("Заполнение полей на форме авторизации")
-    public void inputLoginData(){
+    @Step("Клик по кнопке Восстановить пароль")
+    public void btnRecoverPasswordClick() {
         LoginPageObj loginPageObj = new LoginPageObj(initBrowser.getDriver());
 
-        loginPageObj.setEmail(USEREMAIL);
-        loginPageObj.setPassword(USERPASSWORD);
+        loginPageObj.clickBtnRecoverPassword();
     }
 
     @Step("Клик по кнопке Войти")
-    public void btnLoginClick(){
+    public void btnEnterForgotPasswordPageClick() {
+        ForgotPasswordPageObj forgotPasswordPageObj = new ForgotPasswordPageObj(initBrowser.getDriver());
+
+        forgotPasswordPageObj.clickBtnLogin();
+    }
+
+    @Step("Проверка перехода на страницу авторизации")
+    public void checkLoginUser() {
         LoginPageObj loginPageObj = new LoginPageObj(initBrowser.getDriver());
 
-        loginPageObj.clickBtnLogin();
-    }
-
-    @Step("Проверка регистрации")
-    public void checkRegistration(){
-        MainPageObj mainPageObj = new MainPageObj(initBrowser.getDriver());
-
-        Assert.assertTrue(mainPageObj.isHeaderCreateBurger());
-    }
-
-    @Step("Проверка появления сообщения о неверном пароле")
-    public void checkWrongPasswordMessage(){
-        RegistrationPageObj registrationPageObj = new RegistrationPageObj(initBrowser.getDriver());
-
-        Assert.assertTrue(registrationPageObj.isWrongPassword());
+        Assert.assertTrue(loginPageObj.isHeaderLogin());
     }
 
     @After
     public void CloseBrowser() {
 
-        initBrowser.closeBrowser(accessToken);
+        initBrowser.closeBrowser();
     }
 }

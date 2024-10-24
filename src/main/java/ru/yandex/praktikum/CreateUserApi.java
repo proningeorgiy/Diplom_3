@@ -12,7 +12,8 @@ import static io.restassured.RestAssured.given;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CreateUserApi extends BaseApi {
+public class CreateUserApi {
+    final String CREATEUSER = "/api/auth/register";
 
     private CreateUser createUser;
 
@@ -30,10 +31,10 @@ public class CreateUserApi extends BaseApi {
         System.out.println();
     }
 
-    public Response createUser() {
+    public String createUser() {
         showCreateUserRequestData();
 
-        setBaseURI();
+        //setBaseURI();
 
         Response response;
         response = given()
@@ -42,6 +43,8 @@ public class CreateUserApi extends BaseApi {
                 .when()
                 .post(CREATEUSER);
 
-        return response;
+        showCreateUserResponseData(response);
+
+        return response.path("accessToken");
     }
 }
